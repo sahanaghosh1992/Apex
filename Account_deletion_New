@@ -1,0 +1,30 @@
+// prevent deletion of account if it has related opportunity //
+
+trigger Account_deletion_New on Account (before delete){
+	DeleteAccount.DeleteAccountWithNoOpportunity(Trigger.old);
+}
+
+--------------------------------------------------------------------
+
+//Class related to trigger - Account_deletion_New //
+
+
+
+public class DeleteAccount {
+    public static void DeleteAccountWithNoOpportunity(List<Account> acts){
+    
+        
+        for (Account a :acts)
+        {  
+          Id AccountID = a.Id;
+          List<Opportunity> opp = [SELECT Id, Name FROM Opportunity where AccountId =:AccountID];
+          
+          if (opp.size()>0)
+          {
+            a.addError('Accounts having related Opportunity records can not be deleted');
+          }
+        }
+    }
+}
+
+
